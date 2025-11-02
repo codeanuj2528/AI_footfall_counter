@@ -1,0 +1,398 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Footfall Counter API - Test Client</title>
+    <style>
+        * {
+            margin: 0;
+            padding: 0;
+            box-sizing: border-box;
+        }
+        
+        body {
+            font-family: 'Segoe UI', Tahoma, Geneva, Verdana, sans-serif;
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            min-height: 100vh;
+            padding: 20px;
+        }
+        
+        .container {
+            max-width: 800px;
+            margin: 0 auto;
+            background: white;
+            border-radius: 15px;
+            box-shadow: 0 20px 60px rgba(0,0,0,0.3);
+            overflow: hidden;
+        }
+        
+        .header {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 30px;
+            text-align: center;
+        }
+        
+        .header h1 {
+            font-size: 2.5em;
+            margin-bottom: 10px;
+        }
+        
+        .content {
+            padding: 30px;
+        }
+        
+        .upload-section {
+            border: 3px dashed #667eea;
+            border-radius: 10px;
+            padding: 40px;
+            text-align: center;
+            margin-bottom: 30px;
+            transition: all 0.3s;
+        }
+        
+        .upload-section:hover {
+            border-color: #764ba2;
+            background: #f8f9ff;
+        }
+        
+        .upload-section input[type="file"] {
+            display: none;
+        }
+        
+        .upload-btn {
+            background: linear-gradient(135deg, #667eea 0%, #764ba2 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.1em;
+            cursor: pointer;
+            transition: transform 0.2s;
+        }
+        
+        .upload-btn:hover {
+            transform: scale(1.05);
+        }
+        
+        .config-section {
+            margin: 20px 0;
+        }
+        
+        .config-section label {
+            display: block;
+            margin-bottom: 10px;
+            font-weight: bold;
+            color: #333;
+        }
+        
+        .config-section input[type="range"] {
+            width: 100%;
+            margin-bottom: 10px;
+        }
+        
+        .slider-value {
+            color: #667eea;
+            font-size: 1.2em;
+            font-weight: bold;
+        }
+        
+        .submit-btn {
+            background: linear-gradient(135deg, #11998e 0%, #38ef7d 100%);
+            color: white;
+            padding: 15px 40px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1.2em;
+            cursor: pointer;
+            width: 100%;
+            margin-top: 20px;
+            transition: transform 0.2s;
+        }
+        
+        .submit-btn:hover:not(:disabled) {
+            transform: scale(1.02);
+        }
+        
+        .submit-btn:disabled {
+            background: #ccc;
+            cursor: not-allowed;
+        }
+        
+        .results {
+            margin-top: 30px;
+            padding: 25px;
+            background: #f8f9ff;
+            border-radius: 10px;
+            display: none;
+        }
+        
+        .results.show {
+            display: block;
+            animation: slideIn 0.5s;
+        }
+        
+        @keyframes slideIn {
+            from {
+                opacity: 0;
+                transform: translateY(20px);
+            }
+            to {
+                opacity: 1;
+                transform: translateY(0);
+            }
+        }
+        
+        .result-item {
+            display: flex;
+            justify-content: space-between;
+            padding: 10px 0;
+            border-bottom: 1px solid #ddd;
+        }
+        
+        .result-item:last-child {
+            border-bottom: none;
+        }
+        
+        .result-label {
+            font-weight: bold;
+            color: #555;
+        }
+        
+        .result-value {
+            color: #667eea;
+            font-weight: bold;
+        }
+        
+        .download-btn {
+            background: linear-gradient(135deg, #f093fb 0%, #f5576c 100%);
+            color: white;
+            padding: 12px 30px;
+            border: none;
+            border-radius: 50px;
+            font-size: 1em;
+            cursor: pointer;
+            margin-top: 15px;
+            width: 100%;
+            transition: transform 0.2s;
+        }
+        
+        .download-btn:hover {
+            transform: scale(1.02);
+        }
+        
+        .loading {
+            text-align: center;
+            padding: 30px;
+            display: none;
+        }
+        
+        .loading.show {
+            display: block;
+        }
+        
+        .spinner {
+            border: 4px solid #f3f3f3;
+            border-top: 4px solid #667eea;
+            border-radius: 50%;
+            width: 50px;
+            height: 50px;
+            animation: spin 1s linear infinite;
+            margin: 0 auto 20px;
+        }
+        
+        @keyframes spin {
+            0% { transform: rotate(0deg); }
+            100% { transform: rotate(360deg); }
+        }
+        
+        .error {
+            background: #ffe6e6;
+            color: #cc0000;
+            padding: 15px;
+            border-radius: 10px;
+            margin-top: 15px;
+            display: none;
+        }
+        
+        .error.show {
+            display: block;
+        }
+        
+        .file-info {
+            margin-top: 15px;
+            padding: 10px;
+            background: #e8f5e9;
+            border-radius: 5px;
+            display: none;
+        }
+        
+        .file-info.show {
+            display: block;
+        }
+    </style>
+</head>
+<body>
+    <div class="container">
+        <div class="header">
+            <h1>🚶 Footfall Counter API</h1>
+            <p>Upload a video to count people entering and exiting</p>
+        </div>
+        
+        <div class="content">
+            <div class="upload-section">
+                <h3>📹 Select Video File</h3>
+                <p style="color: #666; margin: 15px 0;">Supported formats: MP4, AVI, MOV, MKV</p>
+                <input type="file" id="videoFile" accept="video/*">
+                <button class="upload-btn" onclick="document.getElementById('videoFile').click()">
+                    Choose Video
+                </button>
+                <div class="file-info" id="fileInfo"></div>
+            </div>
+            
+            <div class="config-section">
+                <label for="linePosition">Counting Line Position:</label>
+                <input type="range" id="linePosition" min="0" max="100" value="50" step="1">
+                <div style="text-align: center;">
+                    <span class="slider-value" id="lineValue">50% (Middle)</span>
+                </div>
+                <p style="color: #666; font-size: 0.9em; margin-top: 10px;">
+                    0% = Top of frame | 50% = Middle | 100% = Bottom
+                </p>
+            </div>
+            
+            <button class="submit-btn" id="submitBtn" onclick="uploadVideo()" disabled>
+                Process Video
+            </button>
+            
+            <div class="loading" id="loading">
+                <div class="spinner"></div>
+                <p>Processing video... This may take a few minutes.</p>
+            </div>
+            
+            <div class="error" id="error"></div>
+            
+            <div class="results" id="results">
+                <h3 style="margin-bottom: 20px; color: #333;">📊 Results</h3>
+                <div class="result-item">
+                    <span class="result-label">Entries (IN):</span>
+                    <span class="result-value" id="entryCount">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Exits (OUT):</span>
+                    <span class="result-value" id="exitCount">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Net Flow:</span>
+                    <span class="result-value" id="netFlow">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Processing Time:</span>
+                    <span class="result-value" id="processingTime">-</span>
+                </div>
+                <div class="result-item">
+                    <span class="result-label">Video Duration:</span>
+                    <span class="result-value" id="videoDuration">-</span>
+                </div>
+                <button class="download-btn" id="downloadBtn" onclick="downloadVideo()">
+                    📥 Download Processed Video
+                </button>
+            </div>
+        </div>
+    </div>
+    
+    <script>
+        let outputVideoId = null;
+        const API_URL = 'http://localhost:5000';
+        
+        // Update line position display
+        document.getElementById('linePosition').addEventListener('input', function(e) {
+            const value = e.target.value;
+            let position = 'Middle';
+            if (value < 33) position = 'Top';
+            else if (value > 66) position = 'Bottom';
+            document.getElementById('lineValue').textContent = `${value}% (${position})`;
+        });
+        
+        // Handle file selection
+        document.getElementById('videoFile').addEventListener('change', function(e) {
+            const file = e.target.files[0];
+            if (file) {
+                const sizeMB = (file.size / (1024 * 1024)).toFixed(2);
+                document.getElementById('fileInfo').innerHTML = `
+                    <strong>📁 ${file.name}</strong><br>
+                    Size: ${sizeMB} MB
+                `;
+                document.getElementById('fileInfo').classList.add('show');
+                document.getElementById('submitBtn').disabled = false;
+            }
+        });
+        
+        async function uploadVideo() {
+            const fileInput = document.getElementById('videoFile');
+            const file = fileInput.files[0];
+            
+            if (!file) {
+                showError('Please select a video file');
+                return;
+            }
+            
+            // Hide previous results
+            document.getElementById('results').classList.remove('show');
+            document.getElementById('error').classList.remove('show');
+            
+            // Show loading
+            document.getElementById('loading').classList.add('show');
+            document.getElementById('submitBtn').disabled = true;
+            
+            // Prepare form data
+            const formData = new FormData();
+            formData.append('video', file);
+            formData.append('line_position', document.getElementById('linePosition').value / 100);
+            
+            try {
+                const response = await fetch(`${API_URL}/count`, {
+                    method: 'POST',
+                    body: formData
+                });
+                
+                const data = await response.json();
+                
+                if (data.success) {
+                    displayResults(data.data);
+                } else {
+                    showError(data.error || 'Processing failed');
+                }
+            } catch (error) {
+                showError('Network error: ' + error.message);
+            } finally {
+                document.getElementById('loading').classList.remove('show');
+                document.getElementById('submitBtn').disabled = false;
+            }
+        }
+        
+        function displayResults(data) {
+            document.getElementById('entryCount').textContent = data.entry_count;
+            document.getElementById('exitCount').textContent = data.exit_count;
+            document.getElementById('netFlow').textContent = data.net_flow;
+            document.getElementById('processingTime').textContent = data.processing_time.toFixed(2) + 's';
+            document.getElementById('videoDuration').textContent = data.video_duration.toFixed(2) + 's';
+            
+            outputVideoId = data.output_video;
+            document.getElementById('results').classList.add('show');
+        }
+        
+        function downloadVideo() {
+            if (outputVideoId) {
+                window.open(`${API_URL}/download/${outputVideoId}`, '_blank');
+            }
+        }
+        
+        function showError(message) {
+            document.getElementById('error').textContent = '❌ ' + message;
+            document.getElementById('error').classList.add('show');
+        }
+    </script>
+</body>
+</html>

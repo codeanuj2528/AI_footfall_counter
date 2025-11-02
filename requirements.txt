@@ -1,0 +1,12 @@
+# Core Dependencies for Footfall Counter
+# Python >= 3.8 required
+
+# Computer Vision
+opencv-python>=4.8.0.74
+opencv-contrib-python>=4.8.0.74
+
+# YOLO Detection and Tracking
+ultralytics>=8.0.196
+
+# Numerical Computing
+numpy>=1.24.3
